@@ -1,8 +1,21 @@
 export default async function handler(req, res) {
   const NOTION_API_KEY = process.env.NOTION_API_KEY;
   const DATABASE_ID = process.env.DATABASE_ID;
+  
+  // URLパラメータからカテゴリを取得
+  const category = req.query.category;
 
   try {
+    // フィルタの設定（カテゴリ指定がある場合のみ）
+    const requestBody = category ? {
+      filter: {
+        property: "カテゴリ",
+        multi_select: {
+          contains: category
+        }
+      }
+    } : {};
+
     const response = await fetch(
       `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
       {
@@ -12,6 +25,7 @@ export default async function handler(req, res) {
           'Notion-Version': '2022-06-28',
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(requestBody)
       }
     );
 
